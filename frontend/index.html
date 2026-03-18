@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Notes to Textbook</title>
+  <style>
+    :root {
+      --bg: #191919;
+      --surface: #202020;
+      --text: #e6e6e6;
+      --muted: #a0a0a0;
+      --border: #2f2f2f;
+      --border-strong: #2f2f2f;
+      --accent: #2a2a2a;
+      --error: #b42318;
+      --error-bg: #2a1c1c;
+      --success: #067647;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    .app {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .top-link {
+      display: inline-block;
+      margin-bottom: 16px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .top-link:hover {
+      color: var(--text);
+    }
+
+    .header {
+      margin-bottom: 24px;
+    }
+
+    .header h1 {
+      margin: 0 0 6px;
+      font-size: 30px;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+    }
+
+    .header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .input,
+    .file-input,
+    .button,
+    .choice-pill {
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      font: inherit;
+    }
+
+    .input,
+    .file-input {
+      width: 100%;
+      background: var(--surface);
+      color: var(--text);
+      padding: 10px 12px;
+      font-size: 14px;
+      transition: border-color 120ms ease;
+    }
+
+    .input:focus,
+    .file-input:focus,
+    .button:focus-visible,
+    .choice-pill:focus-within,
+    .check-button:focus-visible {
+      outline: none;
+      border-color: #5a5a5a;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .helper {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 0;
+    }
+
+    .radio-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .choice-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #252525;
+      color: var(--text);
+      padding: 9px 12px;
+      font-size: 13px;
+      min-width: 150px;
+      cursor: pointer;
+    }
+
+    .choice-pill.active {
+      border-color: #5a5a5a;
+      background: #2b2b2b;
+    }
+
+    .choice-pill input {
+      margin: 0;
+    }
+
+    .mode-panel {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      background: var(--surface);
+      display: none;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .mode-panel.visible {
+      display: grid;
+    }
+
+    .local-tools {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .check-button {
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      padding: 10px 12px;
+      background: #2a2a2a;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 13px;
+      transition: background-color 120ms ease;
+    }
+
+    .check-button:hover {
+      background: #333333;
+    }
+
+    .status {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .status.connected {
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .file-meta {
+      font-size: 13px;
+      color: var(--text);
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      display: none;
+    }
+
+    details.options {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      background: var(--surface);
+      margin-bottom: 16px;
+    }
+
+    details.options > summary {
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      list-style: none;
+    }
+
+    details.options > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .options-body {
+      margin-top: 12px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .option-block {
+      display: grid;
+      gap: 8px;
+    }
+
+    .option-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .button {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--accent);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 120ms ease, opacity 120ms ease;
+      border: 1px solid var(--border);
+    }
+
+    .button:hover:not(:disabled) {
+      background: #333333;
+    }
+
+    .button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .button.secondary {
+      background: #2a2a2a;
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .button.secondary:hover:not(:disabled) {
+      background: #333333;
+    }
+
+    .actions-single {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .inline-error {
+      display: none;
+      border: 1px solid #5a3030;
+      background: var(--error-bg);
+      color: #f0aaaa;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    .progress {
+      display: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      gap: 12px;
+      background: var(--surface);
+      margin-bottom: 16px;
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .bar-wrap {
+      width: 100%;
+      background: #1a1a1a;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      height: 10px;
+      overflow: hidden;
+    }
+
+    .bar {
+      width: 0%;
+      height: 100%;
+      background: #111;
+      transition: width 220ms ease;
+    }
+
+    .steps {
+      margin: 2px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .steps li.done { color: var(--text); }
+    .steps li.active { color: var(--text); font-weight: 600; }
+
+    .output {
+      display: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      background: var(--surface);
+    }
+
+    .ready {
+      margin: 0 0 8px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--success);
+    }
+
+    .output-meta {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .actions {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr 1fr;
+      margin-bottom: 12px;
+    }
+
+    .chapter-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--text);
+      font-size: 13px;
+      display: grid;
+      gap: 4px;
+    }
+
+    @media (max-width: 640px) {
+      .actions { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" data-state="idle">
+    <a class="top-link" href="/frontend/use-local-ai.html">Using local model? Learn how to set it up -&gt;</a>
+
+    <header class="header">
+      <h1>Notes to Textbook</h1>
+      <p>Convert notes into structured textbooks</p>
+    </header>
+
+    <section class="stack" aria-label="Input controls">
+      <div class="field card">
+        <div class="label">AI Source</div>
+        <div class="radio-row" role="radiogroup" aria-label="AI Source">
+          <label class="choice-pill active" for="ai-source-api">
+            <input type="radio" id="ai-source-api" name="ai-source" value="api" checked>
+            <span>Use API Key</span>
+          </label>
+          <label class="choice-pill" for="ai-source-local">
+            <input type="radio" id="ai-source-local" name="ai-source" value="local">
+            <span>Use Local Model</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="mode-panel visible" id="api-mode-panel">
+        <label class="label" for="ai-provider">Provider</label>
+        <select class="input" id="ai-provider">
+          <option value="openai">OpenAI (GPT)</option>
+          <option value="anthropic">Anthropic (Claude)</option>
+          <option value="gemini">Google (Gemini)</option>
+          <option value="grok">xAI (Grok)</option>
+        </select>
+
+        <label class="label" for="api-key" style="margin-top:10px" id="api-key-label">API Key</label>
+        <input class="input" type="password" id="api-key" placeholder="Enter your API key" autocomplete="off">
+
+        <p class="helper" id="api-key-hint">Your key stays in your browser and is never stored</p>
+      </div>
+
+      <div class="mode-panel" id="local-mode-panel">
+        <div class="local-tools">
+          <button class="check-button" type="button" id="check-connection">Check Connection</button>
+          <span class="status" id="local-status">Not connected</span>
+        </div>
+        <p class="helper" id="local-status-detail">Check Ollama on localhost:11434 or LM Studio on localhost:1234</p>
+      </div>
+
+      <div class="field card">
+        <label class="label" for="file-input">Upload file</label>
+        <input class="file-input" type="file" id="file-input" accept=".pdf,.pptx">
+        <div class="file-meta" id="file-meta"></div>
+      </div>
+
+      <details class="options" id="options-panel">
+        <summary>Options</summary>
+        <div class="options-body">
+          <div class="option-block">
+            <div class="option-title">Output Style</div>
+            <div class="radio-row" role="radiogroup" aria-label="Output Style">
+              <label class="choice-pill active" for="style-standard">
+                <input type="radio" id="style-standard" name="output-style" value="Standard Textbook" checked>
+                <span>Standard Textbook</span>
+              </label>
+              <label class="choice-pill" for="style-concise">
+                <input type="radio" id="style-concise" name="output-style" value="Concise Notes">
+                <span>Concise Notes</span>
+              </label>
+              <label class="choice-pill" for="style-detailed">
+                <input type="radio" id="style-detailed" name="output-style" value="Detailed Explanation">
+                <span>Detailed Explanation</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="option-block">
+            <div class="option-title">Structure Control</div>
+            <div class="radio-row" role="radiogroup" aria-label="Structure Control">
+              <label class="choice-pill active" for="structure-auto">
+                <input type="radio" id="structure-auto" name="structure-control" value="Automatic" checked>
+                <span>Automatic</span>
+              </label>
+              <label class="choice-pill" for="structure-chapter">
+                <input type="radio" id="structure-chapter" name="structure-control" value="Chapter-wise">
+                <span>Chapter-wise</span>
+              </label>
+              <label class="choice-pill" for="structure-bullet">
+                <input type="radio" id="structure-bullet" name="structure-control" value="Bullet-based Notes">
+                <span>Bullet-based Notes</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="option-block">
+            <div class="option-title">Privacy Mode</div>
+            <label class="checkbox-row" for="privacy-mode">
+              <input type="checkbox" id="privacy-mode" checked>
+              <span>Do not store my data</span>
+            </label>
+            <p class="helper">No content is saved or logged</p>
+          </div>
+        </div>
+      </details>
+
+      <div class="actions-single">
+        <button class="button" id="btn-generate" type="button" disabled>Generate textbook</button>
+        <button class="button secondary" id="btn-stop" type="button" style="display:none">Stop process</button>
+      </div>
+
+      <div class="inline-error" id="error-msg"></div>
+
+      <section class="progress" id="progress-section" aria-live="polite">
+        <div class="progress-top">
+          <span id="progress-label">Preparing</span>
+          <span id="progress-percent">0%</span>
+        </div>
+        <div class="bar-wrap">
+          <div class="bar" id="progress-bar"></div>
+        </div>
+        <ul class="steps" id="progress-steps"></ul>
+      </section>
+
+      <section class="output" id="done-section" aria-live="polite">
+        <p class="ready">Your textbook is ready</p>
+        <p class="output-meta" id="result-meta"></p>
+        <div class="actions">
+          <button class="button secondary" type="button" id="btn-pdf">Download PDF</button>
+          <button class="button secondary" type="button" id="btn-docx">Download DOCX</button>
+        </div>
+        <ol class="chapter-list" id="chapter-list"></ol>
+      </section>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>

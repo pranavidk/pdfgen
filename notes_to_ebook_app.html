@@ -1,0 +1,513 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0e1c36;
+    --navy-mid: #1a2e52;
+    --navy-light: #2a4478;
+    --gold: #c9a84c;
+    --gold-light: #e8c87a;
+    --cream: #f5f0e8;
+    --cream-mid: #ede6d6;
+    --text: #1a1208;
+    --muted: #6b5e47;
+    --error: #c0392b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--navy);
+    font-family: 'Source Serif 4', Georgia, serif;
+    color: var(--cream);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Subtle background texture */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: 
+      radial-gradient(ellipse at 20% 20%, rgba(201,168,76,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(42,68,120,0.4) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative; z-index: 1;
+    max-width: 740px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* Header */
+  .header { text-align: center; margin-bottom: 56px; }
+  .header-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(201,168,76,0.12);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 46px;
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #fff 0%, var(--gold-light) 60%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+  .header p {
+    color: rgba(245,240,232,0.55);
+    font-size: 15px;
+    font-style: italic;
+    font-weight: 300;
+  }
+
+  /* Ornament */
+  .ornament {
+    display: flex; align-items: center; gap: 12px;
+    margin: 0 auto 48px;
+    width: fit-content;
+  }
+  .ornament-line { width: 60px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold)); }
+  .ornament-line.right { background: linear-gradient(90deg, var(--gold), transparent); }
+  .ornament-diamond { width: 6px; height: 6px; background: var(--gold); transform: rotate(45deg); }
+
+  /* Upload zone */
+  .upload-zone {
+    border: 1.5px dashed rgba(201,168,76,0.4);
+    border-radius: 16px;
+    padding: 56px 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(26,46,82,0.4);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .upload-zone::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at center, rgba(201,168,76,0.04) 0%, transparent 70%);
+    transition: opacity 0.3s;
+  }
+  .upload-zone.drag-over, .upload-zone:hover {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.07);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 0 1px rgba(201,168,76,0.2);
+  }
+  .upload-icon {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, var(--navy-mid), var(--navy-light));
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 16px;
+    margin: 0 auto 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  .upload-zone h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+  .upload-zone p { color: rgba(245,240,232,0.5); font-size: 13px; font-style: italic; }
+  .upload-zone input { display: none; }
+  .file-types {
+    display: flex; gap: 10px; justify-content: center; margin-top: 20px;
+  }
+  .file-type-badge {
+    padding: 4px 12px;
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 20px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  /* File selected state */
+  .file-selected {
+    background: rgba(14,28,54,0.8);
+    border: 1.5px solid rgba(201,168,76,0.5);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 24px;
+  }
+  .file-icon-wrap {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--navy-light), rgba(201,168,76,0.2));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .file-name { font-size: 14px; font-weight: 600; color: var(--cream); }
+  .file-size { font-size: 12px; color: rgba(245,240,232,0.45); margin-top: 2px; }
+  .file-remove {
+    margin-left: auto;
+    background: none; border: none;
+    color: rgba(245,240,232,0.4); cursor: pointer; font-size: 18px;
+    padding: 4px; transition: color 0.2s;
+  }
+  .file-remove:hover { color: var(--error); }
+
+  .api-key-card {
+    background: rgba(14,28,54,0.8);
+    border: 1px solid rgba(201,168,76,0.28);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+  .api-key-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .api-key-label {
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .provider-select {
+    background: rgba(26,46,82,0.8);
+    color: var(--cream);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+  .api-key-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+  }
+  .api-key-input {
+    width: 100%;
+    background: rgba(26,46,82,0.5);
+    color: var(--cream);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 8px;
+    padding: 11px 12px;
+    font-size: 13px;
+  }
+  .api-key-input::placeholder { color: rgba(245,240,232,0.45); }
+  .key-toggle {
+    background: rgba(201,168,76,0.12);
+    border: 1px solid rgba(201,168,76,0.3);
+    color: var(--gold-light);
+    border-radius: 8px;
+    padding: 0 12px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .api-key-help {
+    margin-top: 8px;
+    font-size: 12px;
+    color: rgba(245,240,232,0.58);
+    line-height: 1.5;
+  }
+  .api-key-help a { color: var(--gold-light); }
+  .provider-detected {
+    margin-top: 8px;
+    font-size: 12px;
+    color: rgba(245,240,232,0.75);
+  }
+  .usage-warning {
+    margin-top: 10px;
+    border: 1px solid rgba(201,168,76,0.2);
+    background: rgba(201,168,76,0.08);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: var(--gold-light);
+    font-size: 12px;
+  }
+
+  /* CTA Button */
+  .btn-generate {
+    width: 100%;
+    padding: 18px 32px;
+    background: linear-gradient(135deg, var(--gold) 0%, #b8903e 100%);
+    color: var(--navy);
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border: none; border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.25s;
+    box-shadow: 0 8px 32px rgba(201,168,76,0.25), inset 0 1px 0 rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .btn-generate:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 40px rgba(201,168,76,0.35);
+  }
+  .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* Progress */
+  .progress-card {
+    background: rgba(26,46,82,0.6);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 16px;
+    padding: 40px 32px;
+    text-align: center;
+    margin-top: 24px;
+  }
+  .progress-spinner {
+    width: 52px; height: 52px;
+    border: 3px solid rgba(201,168,76,0.15);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .progress-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; font-weight: 700;
+    color: var(--cream); margin-bottom: 8px;
+  }
+  .progress-card p { color: rgba(245,240,232,0.5); font-size: 13px; font-style: italic; }
+
+  /* Done state */
+  .done-card {
+    background: linear-gradient(135deg, rgba(26,46,82,0.8), rgba(14,28,54,0.9));
+    border: 1px solid rgba(201,168,76,0.35);
+    border-radius: 20px;
+    padding: 40px 36px;
+    margin-top: 24px;
+    text-align: center;
+  }
+  .done-icon {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, rgba(201,168,76,0.2), rgba(201,168,76,0.05));
+    border: 1.5px solid var(--gold);
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+  }
+  .done-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px; font-weight: 700;
+    color: var(--cream); margin-bottom: 6px;
+  }
+  .done-card .book-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; font-style: italic;
+    color: var(--gold-light); margin-bottom: 6px;
+  }
+  .done-card .meta {
+    font-size: 12px; color: rgba(245,240,232,0.4);
+    font-style: italic; margin-bottom: 32px;
+  }
+
+  .download-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .btn-download {
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: none; cursor: pointer;
+    font-family: 'Playfair Display', serif;
+    font-size: 15px; font-weight: 700;
+    transition: all 0.25s;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .btn-pdf {
+    background: linear-gradient(135deg, #c0392b, #96281b);
+    color: #fff;
+    box-shadow: 0 6px 24px rgba(192,57,43,0.3);
+  }
+  .btn-pdf:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(192,57,43,0.4); }
+  .btn-docx {
+    background: linear-gradient(135deg, #1e5fa3, #155085);
+    color: #fff;
+    box-shadow: 0 6px 24px rgba(30,95,163,0.3);
+  }
+  .btn-docx:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(30,95,163,0.4); }
+  .btn-download .btn-label { font-size: 11px; font-family: 'Source Serif 4', serif; opacity: 0.75; font-weight: 400; font-style: italic; }
+
+  .btn-restart {
+    margin-top: 20px;
+    background: none;
+    border: 1px solid rgba(245,240,232,0.15);
+    color: rgba(245,240,232,0.5);
+    padding: 10px 24px; border-radius: 8px;
+    cursor: pointer; font-size: 13px; font-style: italic;
+    transition: all 0.2s; width: 100%;
+  }
+  .btn-restart:hover { border-color: rgba(245,240,232,0.3); color: var(--cream); }
+
+  /* Preview */
+  .preview {
+    margin-top: 24px;
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .preview-header {
+    background: rgba(26,46,82,0.5);
+    padding: 12px 20px;
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--gold); display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid rgba(201,168,76,0.1);
+  }
+  .preview-body {
+    background: rgba(14,28,54,0.4);
+    padding: 20px;
+    max-height: 240px; overflow-y: auto;
+  }
+  .preview-body::-webkit-scrollbar { width: 4px; }
+  .preview-body::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 2px; }
+  .chapter-item { padding: 8px 0; border-bottom: 1px solid rgba(245,240,232,0.06); }
+  .chapter-item:last-child { border-bottom: none; }
+  .chapter-num { font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 1.5px; }
+  .chapter-title { font-family: 'Playfair Display', serif; font-size: 14px; color: var(--cream); margin-top: 2px; }
+  .section-count { font-size: 11px; color: rgba(245,240,232,0.35); font-style: italic; }
+
+  /* Error */
+  .error-msg {
+    background: rgba(192,57,43,0.12);
+    border: 1px solid rgba(192,57,43,0.3);
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: #e88;
+    font-size: 13px;
+    margin-top: 16px;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+
+  @media (max-width: 480px) {
+    .header h1 { font-size: 34px; }
+    .download-btns { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-badge">✦ AI-Powered</div>
+    <h1>Notes to<br>Textbook</h1>
+    <p>Upload your slides or PDF — receive a polished academic eBook</p>
+  </div>
+
+  <div class="ornament">
+    <div class="ornament-line"></div>
+    <div class="ornament-diamond"></div>
+    <div class="ornament-line right"></div>
+  </div>
+
+  <div id="upload-section">
+    <div class="upload-zone" id="drop-zone">
+      <div class="upload-icon">📄</div>
+      <h3>Drop your file here</h3>
+      <p>or click to browse your files</p>
+      <div class="file-types">
+        <span class="file-type-badge">PDF</span>
+        <span class="file-type-badge">PPTX</span>
+      </div>
+      <input type="file" id="file-input" accept=".pdf,.pptx">
+    </div>
+
+    <div class="file-selected" id="file-selected" style="display:none">
+      <div class="file-icon-wrap" id="file-icon">📝</div>
+      <div>
+        <div class="file-name" id="file-name-text"></div>
+        <div class="file-size" id="file-size-text"></div>
+      </div>
+      <button class="file-remove" id="file-remove">✕</button>
+    </div>
+
+    <div class="api-key-card">
+      <div class="api-key-head">
+        <div class="api-key-label">Bring Your Own API Key</div>
+        <select id="provider-select" class="provider-select">
+          <option value="auto">Auto detect</option>
+          <option value="openai">OpenAI</option>
+          <option value="anthropic">Anthropic</option>
+        </select>
+      </div>
+      <div class="api-key-row">
+        <input class="api-key-input" type="password" id="api-key" placeholder="Enter your OpenAI or Anthropic API key" autocomplete="off">
+        <button type="button" class="key-toggle" id="key-toggle">Show</button>
+      </div>
+      <div class="provider-detected" id="provider-detected">Provider: Not detected</div>
+      <div class="api-key-help">
+        Your key is stored locally and never sent to our servers.
+        <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">Get API key from OpenAI</a>
+        /
+        <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer">Anthropic</a>
+      </div>
+      <div class="usage-warning">You will be billed by your provider for model usage.</div>
+    </div>
+
+    <button class="btn-generate" id="btn-generate" disabled onclick="processFile()">
+      <span>✦</span> Transform into Textbook
+    </button>
+
+    <div class="error-msg" id="error-msg" style="display:none">
+      <span>⚠</span><span id="error-text"></span>
+    </div>
+  </div>
+
+  <div id="progress-section" style="display:none">
+    <div class="progress-card">
+      <div class="progress-spinner"></div>
+      <h3 id="progress-title">Processing your document</h3>
+      <p id="progress-subtitle">Please wait a moment...</p>
+    </div>
+  </div>
+
+  <div id="done-section" style="display:none">
+    <div class="done-card">
+      <div class="done-icon">📚</div>
+      <h2>Your Textbook is Ready</h2>
+      <div class="book-title" id="result-title"></div>
+      <div class="meta" id="result-meta"></div>
+      <div class="download-btns">
+        <button class="btn-download btn-pdf" onclick="downloadPDF()">
+          📕 Download PDF
+          <span class="btn-label">Academic Format</span>
+        </button>
+        <button class="btn-download btn-docx" onclick="downloadDOCX()">
+          📘 Download DOCX
+          <span class="btn-label">Word Document</span>
+        </button>
+      </div>
+      <button class="btn-restart" onclick="resetApp()">↩ Convert another file</button>
+    </div>
+
+    <div class="preview" id="preview-section">
+      <div class="preview-header">✦ &nbsp;Chapter Overview</div>
+      <div class="preview-body" id="preview-body"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="./script.js"></script>
+</body>
+</html>
